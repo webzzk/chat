@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>开始聊天吧~</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="/js/jquery-1.11.3.js"></script>
+    <script src="/js/bootstrap.js"></script>
+    <script src="/js/underscore.js"></script>
+</head>
+<body>
+<% include header.ejs %>
+<% if(login == "0"){ %>
+<div class="container container-prev-header">
+    <div class="row">
+        <div class="col-sm-3" style="height:700px;border:1px solid #000">
+            <div class="row" id="chatWrap">
+
+            </div>
+        </div>
+        <div class="col-sm-9" style="height:700px;border:1px solid #000">
+            <div class="row">
+                <div class="col-sm-12" id="chatContent" style="height:500px;border:1px solid #e4393c">
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12"  contenteditable="true" id="sendContent" style="height:150px;border:1px solid #e4393c;outline:none;">
+                </div>
+                <button type="button" id="sendChat" class="btn btn-block btn-primary">发送</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="http://127.0.0.1:8888/socket.io/socket.io.js"></script>
+<script type="text/template" id="getContent">
+    <div class="alert alert-danger">
+        {{=content}}
+    </div>
+</script>
+<script type="text/template" id="sendContent">
+    <div class="alert alert-success">
+        {{=content}}
+    </div>
+</script>
+<script type="text/template" id="chatModel">
+    <div class="col-sm-12" data-to="{{=username}}"
+         style="font-size: 20px;line-height: 100px;text-align: center;height:100px;border:1px solid #000">
+        {{=username}}
+    </div>
+</script>
+<script>
+    var socket = io.connect('http://localhost:8888'),
+            to;
+    socket.on('getMsg', function (data) {
+        var compiled = _.template($("#getContent").html());
+        $("#chatContent").append(compiled({content: data.msg}));
+    });
+    socket.emit('newuser', {username:"<%= username %>"});
+    socket.on('onlineuser', function (data) {
+        var users = [];
+        data.users.map(function(usn){
+            var compiled = _.template($("#chatModel").html());
+            users.push(compiled({username: usn}));
+        });
+        $("#chatWrap").html(users.join(""));
+    });
+    $("#chatWrap").delegate("div[data-to]","click",function(){
+        to = $(this).attr('data-to');
+        console.log(123);
+    })
+    $("#sendChat").click(function(){
+        socket.emit('message',{msg:$("#sendContent").text(),to:to})
+    })
+
+</script>
+<% }else{ %>
+<div class="container container-prev-header">
+    <h1>对不起，您尚未登录！</h1>
+</div>
+<% } %>
+</body>
+</html>

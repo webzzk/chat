@@ -1,0 +1,122 @@
+<% if(login == "1") { %>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">悄悄话</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a data-toggle="modal" data-target="#myModal">登录</a></li>
+                <li><a href="/regist">注册</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">登录</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="loginName" class="control-label">用户名:</label>
+                        <input type="text" class="form-control" name="username" id="loginName">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPwd" class="control-label">密码:</label>
+                        <input type="password" class="form-control" name="userpwd" id="loginPwd"/>
+                    </div>
+                </form>
+                <div class="row">
+                    <div class="col-sm-11">
+                        <button type="submit" id="loginBtn" class="pull-right btn btn-primary">确认登录</button>
+                    </div>
+                </div>
+                <div class="alert alert-danger hidden" id="loginWarn"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        $("#loginBtn").click(function () {
+            var json = {
+                username: $("#loginName").val(),
+                userpwd: $("#loginPwd").val()
+            };
+            $.post("/dologin", json)
+                    .done(function (data) {
+                        var str = "";
+                        switch (data) {
+                            case "0":
+                                window.location.href = "/chat";
+                                break;
+                            case "1":
+                                str = "请确认账户密码是否正确";
+                                break;
+                            case "2":
+                                str = "您输入的用户名不存在";
+                                break;
+                        }
+                        str != "" && $("#loginWarn").html(str).show();
+                    })
+        })
+    })
+</script>
+<% }else if(login == "0"){ %>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">悄悄话</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a>欢迎您<%= username %></a></li>
+                <li><a data-toggle="modal" data-target="#myModal">退出</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="colsm-12">是否确认退出？</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-block btn btn-primary" id="sure">确认退出</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $("#sure").click(function(){
+        $.get('/exit')
+                .done(function(){
+                    window.location.href = "/";
+                })
+    })
+</script>
+<% } %>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Evanzlj">
+    <title>网页版悄悄话~</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="/js/jquery-1.11.3.js"></script>
+    <script src="/js/bootstrap.js"></script>
+    <script src="/js/underscore.js"></script>
+</head>
+
+<body>
+
+<% include header.ejs %>
+
+<div class="container container-prev-header">
+    <!-- Example row of columns -->
+    <div class="form-group">
+        <label for="inputEmail3" class="col-sm-2 control-label">用户名</label>
+
+        <div class="col-sm-10">
+            <input type="text" class="form-control" placeholder="请输入用户名" id="regusername">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="inputPassword3" class="col-sm-2 control-label">密码</label>
+
+        <div class="col-sm-10">
+            <input type="password" class="form-control" placeholder="请输入密码" id="reguserpwd">
+        </div>
+    </div>
+    <button type="button" class="btn btn-block btn-primary" id="submit">提交</button>
+    <div id="warnWarp"></div>
+</div>
+
+<div class="modal fade" id="success">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="alert alert-success" role="alert">
+                    <p>恭喜您注册成功，即将为您跳转到主页</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/template" id="warning">
+    <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+        <p>{{=text}}</p>
+    </div>
+</script>
+<script>
+    $("#submit").click(function () {
+        var json = {
+            'username': $('#regusername').val(),
+            'userpwd': $('#reguserpwd').val()
+        };
+        $.post('/doregist', json)
+                .done(function (data) {
+                    var compiled = _.template($("#warning").html());
+                    switch (data) {
+                        case "0":
+                            $('#success').modal();
+                            window.location.href = "/chat";
+                            break;
+                        case "1":
+                            $("#warnWarp").html(compiled({text: '用户名已经被占用,请重新输入'}));
+                            $("input[name=username]").val("").focus();
+                            break;
+                        case "2":
+                            $("#warnWarp").html(compiled({text: '服务器端错误，请联系管理员'}));
+                            break;
+                        case "3":
+                            $("#warnWarp").html(compiled({text: '请输入账户或密码'}));
+                            break;
+                    }
+                })
+    })
+</script>
+</body>
+</html>
